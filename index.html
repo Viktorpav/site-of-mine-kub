@@ -1,0 +1,258 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Our Funky HTML Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta name="description" content="Our first page">
+  <meta name="keywords" content="html tutorial template">
+
+  <style>
+    /* Global styles */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    .container {
+      display: flex;
+    }
+
+    /* Left section styles */
+    .left-section {
+      flex: 1;
+      padding: 20px;
+    }
+
+    /* Right section styles */
+    .right-section {
+      flex: 2;
+      /* Adjust this to make the video section wider */
+      display: flex;
+      flex-wrap: wrap;
+      /* Enable wrapping for video items */
+      justify-content: flex-start;
+      /* Align items to the start */
+      align-items: flex-start;
+      /* Align items to the top */
+      padding: 20px;
+      /* Add some padding for aesthetics */
+      height: 100vh;
+      overflow: auto;
+      /* Enable scrolling when videos overflow the section */
+    }
+
+    /* Video item styles */
+    .video-item {
+      flex: 1 1 33%;
+      /* Make each video item take up about a third of the container width */
+      max-width: 33%;
+      /* Limit maximum width to a third of the container width */
+      position: relative;
+      margin: 10px;
+      /* Add some margin between video items */
+      box-sizing: border-box;
+      /* Include padding and border in element's total width and height */
+    }
+
+    /* Video container styles */
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%;
+      /* Maintain a 16:9 aspect ratio */
+      overflow: hidden;
+      /* Hide any content that doesn't fit inside the container */
+    }
+
+    #video-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0);
+      /* make it invisible but still interactive */
+    }
+
+    /* Adjusted the video size, add a box shadow, and removed default video controls styling */
+    video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      /* Scale video to fill container while maintaining aspect ratio */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      max-width: none;
+      max-height: none;
+    }
+
+    video::-webkit-media-controls,
+    video::-webkit-media-controls-enclosure,
+    video::-webkit-media-controls-panel {
+      display: none !important;
+    }
+
+    /* Loading indicator */
+    .loading {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Show loading indicator while video is loading */
+    video.loading {
+      opacity: 0;
+    }
+
+    div.loading .loading {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  Content goes here. More and more we are looking for
+  <a href="https://github.com/Viktorpav/site-of-mine">Link to the repo of the site</a>
+  <div class="container">
+    <div class="left-section">
+      <h1>Video Information</h1>
+      <p>Here you can provide some text about the video or any additional information you want to display.</p>
+      <h2>Comments</h2>
+      <div>
+        <!-- Add your comment section HTML here -->
+      </div>
+      <!-- Add this new div to display API response -->
+      <div id="api-response"></div>
+    </div>
+    <div class="right-section">
+      <!-- Repeat this structure for each video -->
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video1" controls muted playsinline></video>
+          <div id="video-overlay"></div>
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+      <!-- Add more video items here -->
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video2" controls muted playsinline></video>
+          <div id="video-overlay"></div>
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+      <div class="video-item">
+        <div class="video-container">
+          <video id="video3" controls muted playsinline></video>
+          <div class="video-overlay"></div>
+          <div class="loading">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+  <script>
+    const videos = document.querySelectorAll('video');
+    const loadings = document.querySelectorAll('.loading');
+    const overlays = document.querySelectorAll('#video-overlay');
+    let isClicked = [false, false];
+    let mouseOverActive = [true, true];
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const clickEvent = isMobile ? 'touchstart' : 'click';
+    const videoUrls = ['https://www.pavlyshyn.space/converted/video-same/index.m3u8', 'https://www.pavlyshyn.space/converted/video2/index.m3u8', 'https://www.pavlyshyn.space/converted/s06e10.mp4'];
+
+    videos.forEach((video, i) => {
+      const loading = loadings[i];
+      const overlay = overlays[i];
+
+      function handleVideoLoad() {
+        video.classList.remove('loading');
+        loading.classList.remove('loading');
+      }
+
+      function handleError(event, data) {
+        if (data.fatal) {
+          console.error(`${data.type} error occurred, trying to recover...`);
+          data.type === Hls.ErrorTypes.NETWORK_ERROR ? hls.startLoad() : hls.recoverMediaError();
+        }
+      }
+
+      function handlePlay() {
+        if (!isClicked[i]) {
+          video.muted = false;
+          video.play().then(() => {
+            isClicked[i] = true;
+            mouseOverActive[i] = false;
+          }).catch(() => {
+            isClicked[i] = false;
+          });
+        } else {
+          video.pause();
+          isClicked[i] = false;
+        }
+      }
+
+      function handleMouseOver() {
+        if (mouseOverActive[i] && !isClicked[i] && video.paused && !isMobile) {
+          video.muted = true;  // Ensure the video is muted
+          video.play();
+        }
+      }
+
+      function handleMouseOut() {
+        if (mouseOverActive[i] && !isClicked[i]) {
+          video.pause();
+        }
+      }
+
+      if (Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(videoUrls[i]);
+        hls.attachMedia(video);
+        hls.on(Hls.Events.MANIFEST_LOADING, handleVideoLoad);
+        hls.on(Hls.Events.MANIFEST_PARSED, handleVideoLoad);
+        hls.on(Hls.Events.ERROR, handleError);
+      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+        video.src = videoUrls[i];
+        video.addEventListener('loadedmetadata', handleVideoLoad);
+      } else {
+        video.innerHTML = "Your browser does not support video playback.";
+      }
+
+      overlay.addEventListener(clickEvent, handlePlay);
+      overlay.addEventListener('mouseover', handleMouseOver);
+      overlay.addEventListener('mouseout', handleMouseOut);
+    });
+  </script>
+
+  <!-- Add this new script for API call -->
+  <script>
+    function fetchAPIData() {
+      console.log('Fetching API data...');
+      fetch('/api')
+        .then(response => {
+          console.log('Response status:', response.status);
+          return response.json();
+        })
+        .then(data => {
+          console.log('API response:', data);
+          document.getElementById('api-response').textContent = JSON.stringify(data);
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          document.getElementById('api-response').textContent = 'Error fetching API data';
+        });
+    }
+  </script>
+</body>
+
+</html>
