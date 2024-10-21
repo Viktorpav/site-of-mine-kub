@@ -1,7 +1,6 @@
 # site-of-mine
-Static Site S3 of Mine, fully managed by CloudFormation!
+Static Site S3 of Mine with local K8S API, fully managed by terraform
 
-The idea to create a skillet of fully automated flow of creating static website, with which people can use it for their needs and build it without manual intervantion.
 
 ### Docs how to use:
 
@@ -93,12 +92,6 @@ cd site-of-mine
 
 
 ———————————————
-Go through ChatGTP recommendation:
-
-Setup CloudFront Origin Access Control (OAC) - don’t work for website case
-The static website server provided by the S3 service for a bucket is http only, no support for https. Your custom origin config says https-only, so it won't be able to contact the origin.
-The best way to do this is disable the bucket's website and public access and instead of using a custom origin, use an S3 origin secured by an Origin Access Identity. That's a special CloudFront principal that you grant permissions to in your bucket policy.
-Then for best practice enable all the Block Public Access settings on the bucket. Bonus points for doing that at the account level too and never making any of your buckets public!
 
 
 - [x] Divide on 2 yaml, one with S3 website endpoint / S3 bucket endpoint(more secure)
@@ -157,4 +150,4 @@ Improvement:
 - Use Compression: Use compression in CloudFront Distribution to reduce file size and speed up page loading.
  \\ Test with PageSpeed tool Compress property of the DefaultCacheBehavior object to true 
 
-# site-of-mine-kub
+# site-of-mine-kub - new ERA
