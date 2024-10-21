@@ -1,6 +1,6 @@
 # site-of-mine
 Static Site S3 of Mine with local K8S API, fully managed by terraform
-
+<details>
 
 ### Docs how to use:
 
@@ -149,5 +149,7 @@ Improvement:
 
 - Use Compression: Use compression in CloudFront Distribution to reduce file size and speed up page loading.
  \\ Test with PageSpeed tool Compress property of the DefaultCacheBehavior object to true 
+
+</details>
 
 # site-of-mine-kub - new ERA
